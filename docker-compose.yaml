@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+
+  php:
+    build:
+      context: ./php
+    restart: always
+    volumes:
+      - ./php/www.conf:/etc/php-fpm.d/www.conf
+      - ./php/php.ini:/etc/php.d/20-default.ini
+      - ./logs/php:/var/log/php
+      - ${PROJECT_PATH}:/var/www/html
+    expose:
+      - 9000
+
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        - DOMAIN=${DOMAIN}
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates
+      - ./nginx/ssl:/var/www/ssl
+      - ./logs/nginx:/var/log/nginx
+      - ${PROJECT_PATH}:/var/www/html
