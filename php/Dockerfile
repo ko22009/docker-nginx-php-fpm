@@ -1,56 +1,61 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.4-fpm
 
-RUN apk add --no-cache \
-    autoconf \
-    curl \
-    dpkg-dev \
-    dpkg \
-    freetype-dev \
-    file \
-    g++ \
-    gcc \
-    git \
-    icu-dev \
-    jpeg-dev \
-    libc-dev \
-    libmcrypt-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libxml2-dev \
-    libzip-dev \
-    make \
-    mariadb-dev \
-    postgresql-dev \
-    pkgconf \
-    php7-dev \
-    re2c \
-    rsync \
-    unzip \
-    wget \
-    zlib-dev
+RUN apt-get update
+RUN apt-get install -y \
+            git \
+            libzip-dev \
+            libc-client-dev \
+            libkrb5-dev \
+            libpng-dev \
+            libjpeg-dev \
+            libwebp-dev \
+            libfreetype6-dev \
+            libkrb5-dev \
+            libicu-dev \
+            zlib1g-dev \
+            zip \
+            ffmpeg \
+            libmemcached11 \
+            libmemcachedutil2 \
+            build-essential \
+            libmemcached-dev \
+            gnupg2 \
+            libpq-dev \
+            libpq5 \
+            libz-dev \
+			mc
 
-RUN docker-php-ext-install \
-    zip \
-    iconv \
-    soap \
-    sockets \
-    intl \
-    pdo_mysql \
-    pdo_pgsql \
-    exif \
-    pcntl
+RUN docker-php-ext-configure gd \
+    --with-webp=/usr/include/ \
+    --with-freetype=/usr/include/ \
+    --with-jpeg=/usr/include/
+RUN docker-php-ext-install gd
 
-RUN apk add php7-pecl-xdebug \
-    && echo xdebug.remote_enable=1 >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo xdebug.remote_port=9001 >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo xdebug.remote_host=host.docker.internal >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN docker-php-ext-configure imap \
+    --with-kerberos \
+    --with-imap-ssl
+RUN docker-php-ext-install imap
+
+RUN docker-php-ext-configure zip
+
+RUN docker-php-ext-install zip
+
+RUN docker-php-ext-configure intl
+RUN docker-php-ext-install intl
+
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install pdo_pgsql
+RUN docker-php-ext-install exif
+RUN docker-php-ext-install fileinfo
+
+RUN pecl install xdebug
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN addgroup developer
-RUN adduser --disabled-password -G developer developer
+RUN groupadd developer
+RUN useradd -m -g developer developer
 
-COPY --chown=developer:developer . /var/www/html
+RUN chown developer:developer /var/www/html
 WORKDIR /var/www/html
 
 CMD ["php-fpm"]

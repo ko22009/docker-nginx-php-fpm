@@ -7,9 +7,8 @@ services:
       context: ./php
     restart: always
     volumes:
-      - ./php/www.conf:/etc/php-fpm.d/www.conf
-      - ./php/php.ini:/etc/php.d/20-default.ini
-      - ./logs/php:/var/log/php
+      - ./php/www.conf:/usr/local/etc/php-fpm.d/zz-www.conf
+      - ./php/php.ini:/usr/local/etc/php/conf.d/20-default.ini
       - ${PROJECT_PATH}:/var/www/html
     expose:
       - 9000
@@ -26,5 +25,5 @@ services:
     volumes:
       - ./nginx/templates:/etc/nginx/templates
       - ./nginx/ssl:/var/www/ssl
-      - ./logs/nginx:/var/log/nginx
+      - ./logs:/var/log/nginx
       - ${PROJECT_PATH}:/var/www/html
