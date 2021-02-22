@@ -5,6 +5,9 @@ services:
   php:
     build:
       context: ./php
+      args:
+        - UID_DOCKER=${UID_DOCKER}
+        - GID_DOCKER=${GID_DOCKER}
     restart: always
     volumes:
       - ./php/www.conf:/usr/local/etc/php-fpm.d/zz-www.conf

@@ -52,8 +52,13 @@ RUN pecl install xdebug
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN groupadd developer
-RUN useradd -m -g developer developer
+ARG UID_DOCKER=1000
+ARG GID_DOCKER=1000
+ENV UID_DOCKER=${UID_DOCKER:-1000}
+ENV GID_DOCKER=${GID_DOCKER:-1000}
+
+RUN groupadd --gid $GID_DOCKER developer
+RUN useradd --uid $UID_DOCKER -m --gid $GID_DOCKER -g developer developer
 
 RUN chown developer:developer /var/www/html
 WORKDIR /var/www/html
